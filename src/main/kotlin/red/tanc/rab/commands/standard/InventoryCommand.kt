@@ -35,8 +35,7 @@ class InventoryCommand : Command() {
             val listTmp = "- `${Converter.addIndent(item.amount.toString(), maxLength)}x` ${item.emoji} ${item.name}\n"
 
             if (list.length + listTmp.length > 1024
-                && getListLength(values) + list.length <= Constants.MESSAGE_MAX_LENGTH
-            ) {
+                    && getListLength(values) + list.length <= Constants.MESSAGE_MAX_LENGTH) {
                 values.add(list)
                 list = ""
             }
@@ -49,8 +48,8 @@ class InventoryCommand : Command() {
 
         // Create the fancy inventory message
         val eb = EmbedBuilder()
-            .setColor(Color.decode(Constants.COLOR))
-            .setAuthor("${user.name}${Converter.getApostrophS(user.name)} inventory", null, user.effectiveAvatarUrl)
+                .setColor(Color.decode(Constants.COLOR))
+                .setAuthor("${user.name}${Converter.getApostrophS(user.name)} inventory", null, user.effectiveAvatarUrl)
 
         for (value in values)
             eb.addField("", value, false)
