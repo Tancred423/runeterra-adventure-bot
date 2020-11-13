@@ -9,12 +9,12 @@ A Discord text adventure game in the League of Legends universe
 * Get Support: Coming Soon™
 
 ## Author
-* [Catrys#777](https://discord.gg/cat)
+* [Catrys#7777](https://discord.gg/cat)
 * [Tancred#0001](https://github.com/Tancred423)
 
 ## Built with
 * [Kotlin](https://kotlinlang.org/) - Programming Language
-* [JDA 4.2.0_214](https://github.com/DV8FromTheWorld/JDA) - Java Wrapper for Discord API
+* [JDA 4.2.0_215](https://github.com/DV8FromTheWorld/JDA) - Java Wrapper for Discord API
 * [Gradle](https://gradle.org/) - Build automation tool
 * Heart ❤
 

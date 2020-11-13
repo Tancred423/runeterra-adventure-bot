@@ -14,8 +14,8 @@ class PingCommand : Command() {
 
     override fun run(e: MessageReceivedEvent, args: List<String>) {
         val eb = EmbedBuilder()
-            .setColor(Color.decode(Constants.COLOR))
-            .setDescription("Measuring ...")
+                .setColor(Color.decode(Constants.COLOR))
+                .setDescription("Measuring ...")
 
         e.channel.sendMessage(eb.build()).queue { message ->
             val jda = e.jda
@@ -25,28 +25,28 @@ class PingCommand : Command() {
             val avgWebSocketPing = sm?.averageGatewayPing?.roundToInt() ?: 0
             jda.restPing.queue { restPing ->
                 val newEmbed = EmbedBuilder()
-                    .setColor(Color.decode(Constants.COLOR))
-                    .addField(
-                        "Bot Ping: $botPing ms",
-                        "The time that the bot took to respond to your ping command.",
-                        false
-                    )
-                    .addField(
-                        "REST Ping: $restPing ms",
-                        "The time that Discord took to respond to an API request.",
-                        false
-                    )
-                    .addField(
-                        "WebSocket Ping (Shard: ${jda.shardInfo.shardId} : $webSocketPing ms",
-                        "The time that Discord took to respond to the current shard's last heartbeat.",
-                        false
-                    )
-                    .addField(
-                        "Avg. WebSocket Ping (All ${sm!!.shardsTotal} shards): $avgWebSocketPing ms",
-                        "The average time that Discord took to respond to all shard's last heatbeats.",
-                        false
-                    )
-                    .build()
+                        .setColor(Color.decode(Constants.COLOR))
+                        .addField(
+                                "Bot Ping: $botPing ms",
+                                "The time that the bot took to respond to your ping command.",
+                                false
+                        )
+                        .addField(
+                                "REST Ping: $restPing ms",
+                                "The time that Discord took to respond to an API request.",
+                                false
+                        )
+                        .addField(
+                                "WebSocket Ping (Shard: ${jda.shardInfo.shardId}): $webSocketPing ms",
+                                "The time that Discord took to respond to the current shard's last heartbeat.",
+                                false
+                        )
+                        .addField(
+                                "Avg. WebSocket Ping (All ${sm!!.shardsTotal} shards): $avgWebSocketPing ms",
+                                "The average time that Discord took to respond to all shard's last heatbeats.",
+                                false
+                        )
+                        .build()
 
                 message.editMessage(newEmbed).queue()
             }
