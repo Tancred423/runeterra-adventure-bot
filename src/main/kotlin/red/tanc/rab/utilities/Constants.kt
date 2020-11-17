@@ -6,4 +6,9 @@ object Constants {
     const val WALK_COOLDOWN = 60000 // 1 Minute
     const val METERS_PER_CHAPTER = 2000
     const val MESSAGE_MAX_LENGTH = 4500
+    const val SUCCESS = "✅"
+    const val WARNING = "⚠"
+    const val ERROR = "❌"
+    const val ACCEPT = "✅"
+    const val DECLINE = "❌"
 }

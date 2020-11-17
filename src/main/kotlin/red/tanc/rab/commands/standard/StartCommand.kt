@@ -13,7 +13,9 @@ class StartCommand : Command() {
         val user = e.author
         val channel = e.channel
 
-        when (Database.optIn(guild.idLong, user.idLong)) {
+        val db = Database(guild.idLong)
+
+        when (db.optIn(user.idLong)) {
             0 -> channel.sendMessage("${user.asMention}, your adventure has begun!").queue()
             1 -> channel.sendMessage("${user.asMention}, your adventure is already running!").queue()
             2 -> channel.sendMessage("${user.asMention}, your adventure will continue!").queue()

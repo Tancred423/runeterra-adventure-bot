@@ -18,9 +18,10 @@ repositories {
 
 dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib'
-    implementation 'net.dv8tion:JDA:4.2.0_214'
     implementation 'mysql:mysql-connector-java:8.0.20'
     implementation 'com.zaxxer:HikariCP:3.4.5'
+    implementation 'net.dv8tion:JDA:4.2.0_214'
+    implementation 'com.jagrosh:jda-utilities:3.0.5'
 }
 
 compileJava.options.encoding = 'UTF-8'

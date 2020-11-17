@@ -20,11 +20,12 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ThreadLocalRandom
 
-class EventListener() : ListenerAdapter() {
+class EventListener : ListenerAdapter() {
     override fun onReady(e: ReadyEvent) {
         val jda = e.jda;
         val selfUser = jda.selfUser
-        println("""
+        println(
+                """
             ========================================================
             Account: ${selfUser.name}#${selfUser.discriminator} (ID: ${selfUser.id})
             Shard: ${jda.shardInfo}
@@ -34,9 +35,13 @@ class EventListener() : ListenerAdapter() {
             Prefix: ${Constants.PREFIX}
             BOT READY!
             ========================================================
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        jda.presence.setPresence(OnlineStatus.ONLINE, Activity.listening("tales of Runeterra | ${Constants.PREFIX}info"))
+        jda.presence.setPresence(
+                OnlineStatus.ONLINE,
+                Activity.playing("RAB | ${Constants.PREFIX}help")
+        )
     }
 
     override fun onMessageReceived(e: MessageReceivedEvent) {
@@ -48,7 +53,12 @@ class EventListener() : ListenerAdapter() {
         processCommand(e)
 
         // Walking (Meters)
-        if (e.isFromGuild && Database.getOptStatus(e.guild.idLong, user.idLong) == 1) processMeters(e)
+        if (e.isFromGuild) {
+            val db = Database(e.guild.idLong)
+
+            if (db.getOptStatus(user.idLong) == 1 && db.getChannelId() != 0L)
+                processMeters(e)
+        }
     }
 
     private fun processCommand(e: MessageReceivedEvent) {
@@ -63,8 +73,14 @@ class EventListener() : ListenerAdapter() {
             val args = contentSplit.drop(1)
 
             val success = when (invoke.toLowerCase()) {
+                // Standard Commands
+                "help", "h" -> run(HelpCommand(), e, args)
                 "ping", "pong" -> run(PingCommand(), e, args)
-                "channel" -> run(ChannelCommand(), e, args)
+
+                // Admin Commands
+                "channel", "chan" -> run(ChannelCommand(), e, args)
+
+                // Commands
                 "info", "information" -> run(InfoCommand(), e, args)
                 "start", "resume" -> run(StartCommand(), e, args)
                 "stop", "pause" -> run(StopCommand(), e, args)
@@ -79,7 +95,8 @@ class EventListener() : ListenerAdapter() {
 
     private fun run(cmd: Command, e: MessageReceivedEvent, args: List<String>): Boolean {
         return if ((!cmd.guildOnly || e.isFromGuild) // Guild only commands only in guilds
-                && (!cmd.adminOnly || (e.isFromGuild && e.member!!.isOwner))) { // Admin only commands only from admins
+                && (!cmd.adminOnly || (e.isFromGuild && e.member!!.isOwner))
+        ) { // Admin only commands only from admins
             cmd.run(e, args)
             true
         } else false
@@ -89,6 +106,8 @@ class EventListener() : ListenerAdapter() {
         val guild = e.guild
         val user = e.author
         val channel = e.channel
+
+        val db = Database(guild.idLong)
 
         var offCooldown = true
         var userCooldowns = Bot.guildCooldowns[guild.idLong] // returns Map<userId, instant> from current guild
@@ -103,18 +122,17 @@ class EventListener() : ListenerAdapter() {
         }
 
         if (offCooldown) {
-            val oldChapter = Converter.getChapter(Database.getMeters(guild.idLong, user.idLong))
+            val oldChapter = Converter.getChapter(db.getMeters(user.idLong))
 
             val randomMeters = ThreadLocalRandom.current().nextInt(15, 26)
-            Database.setMeters(guild.idLong, user.idLong, randomMeters)
-            channel.sendMessage("[DEBUG MESSAGE] ${user.asMention} just walked $randomMeters meters and now walked a total of ${Converter.toKilometer(Database.getMeters(guild.idLong, user.idLong))} km.").queue()
+            db.setMeters(user.idLong, randomMeters)
 
             // Update cooldown
             userCooldowns[user.idLong] = Instant.now()
             Bot.guildCooldowns[guild.idLong] = userCooldowns
 
             // Check for reached chapter
-            val newChapter = Converter.getChapter(Database.getMeters(guild.idLong, user.idLong))
+            val newChapter = Converter.getChapter(db.getMeters(user.idLong))
             if (newChapter > oldChapter) {
                 // New chapter reached
                 val mb = MessageBuilder()
@@ -122,12 +140,16 @@ class EventListener() : ListenerAdapter() {
 
                 val eb = EmbedBuilder()
                         .setColor(Color.decode(Constants.COLOR))
-                        .setAuthor("${user.name}${Converter.getApostrophS(user.name)} adventure", null, user.effectiveAvatarUrl)
+                        .setAuthor(
+                                "${user.name}${Converter.getApostrophS(user.name)} adventure",
+                                null,
+                                user.effectiveAvatarUrl
+                        )
                         .setTitle("Travel Log $newChapter - ${TravelLogs.getNameOfChapter(newChapter)}")
                         .setDescription("||${TravelLogs.getStory(newChapter)}||")
                         .addField("Commands for this travel log", "-anythingIdkJustATestAnyway", false)
 
-                val tlChannelId = Database.getChannelId(guild.idLong)
+                val tlChannelId = db.getChannelId()
                 val tlChannel = guild.getTextChannelById(tlChannelId)
                 tlChannel?.sendMessage(mb.setEmbed(eb.build()).build())?.queue()
             }
