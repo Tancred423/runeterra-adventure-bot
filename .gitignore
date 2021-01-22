@@ -29,6 +29,8 @@ hs_err_pid*
 *.iml
 /src/main/resources/*
 /.gradle/*
+/.git/*
+/build/*
 
 # Runtime files
 /resources/*
