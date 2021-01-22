@@ -105,7 +105,6 @@ class EventListener : ListenerAdapter() {
     private fun processMeters(e: MessageReceivedEvent) {
         val guild = e.guild
         val user = e.author
-        val channel = e.channel
 
         val db = Database(guild.idLong)
 
@@ -122,19 +121,24 @@ class EventListener : ListenerAdapter() {
         }
 
         if (offCooldown) {
-            val oldChapter = Converter.getChapter(db.getMeters(user.idLong))
+            val oldMeters = db.getMeters(user.idLong)
+            val oldChapter = Converter.getChapter(oldMeters)
 
             val randomMeters = ThreadLocalRandom.current().nextInt(15, 26)
             db.setMeters(user.idLong, randomMeters)
+
+            val newMeters = db.getMeters(user.idLong)
+            val newChapter = Converter.getChapter(newMeters)
 
             // Update cooldown
             userCooldowns[user.idLong] = Instant.now()
             Bot.guildCooldowns[guild.idLong] = userCooldowns
 
             // Check for reached chapter
-            val newChapter = Converter.getChapter(db.getMeters(user.idLong))
             if (newChapter > oldChapter) {
                 // New chapter reached
+                Console.log("${user.name} walked $randomMeters meters and reached chapter $newChapter. Total: $newMeters meters")
+
                 val mb = MessageBuilder()
                         .setContent(user.asMention)
 
@@ -152,7 +156,7 @@ class EventListener : ListenerAdapter() {
                 val tlChannelId = db.getChannelId()
                 val tlChannel = guild.getTextChannelById(tlChannelId)
                 tlChannel?.sendMessage(mb.setEmbed(eb.build()).build())?.queue()
-            }
+            } else Console.log("${user.name} walked $randomMeters meters. Total: $newMeters meters")
         }
     }
 }
